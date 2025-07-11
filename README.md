@@ -1,4 +1,14 @@
-# CodeSage - LeetCode Progress Tracker
+# Co## ✨ Features
+
+- 🚀 **Real-time LeetCode Data** - Fetch live user statistics and submission history
+- 🏷️ **Topic-Based Analytics** - Deep insights into performance by coding topics (Arrays, DP, Graphs, etc.)
+- 📊 **Beautiful Analytics Dashboard** - Visualize problem-solving progress with stunning charts
+- 🎯 **Comprehensive Metrics** - Track acceptance rates, difficulty breakdown, and recent activity
+- 📈 **Submission Timeline** - View detailed submission history with timestamps and languages
+- 🏆 **Contest Performance** - Monitor contest ratings and participation
+- 🌈 **Modern UI/UX** - Beautiful gradient designs with glassmorphism effects
+- 📱 **Fully Responsive** - Optimized for desktop, tablet, and mobile devices
+- ⚡ **Lightning Fast** - Built with Next.js 15 and Turbopack for optimal performanceeetCode Progress Tracker
 
 A modern, beautiful web application that helps developers track and visualize their LeetCode progress with comprehensive analytics and insights.
 
@@ -50,15 +60,21 @@ src/
 │   │   ├── route.ts                  # Full user profile
 │   │   ├── stats/route.ts           # User statistics
 │   │   ├── submissions/route.ts     # Submission history
-│   │   └── dashboard/route.ts       # Dashboard data
+│   │   ├── dashboard/route.ts       # Dashboard data
+│   │   ├── topics/route.ts          # Topic analytics
+│   │   ├── problem/[slug]/route.ts  # Problem details
+│   │   └── submission/[id]/route.ts # Submission code
 │   ├── dashboard/[username]/        # Dashboard pages
 │   │   ├── page.tsx                 # Main dashboard
 │   │   ├── loading.tsx              # Loading component
-│   │   └── error.tsx                # Error handling
+│   │   ├── error.tsx                # Error handling
+│   │   ├── problem/[slug]/page.tsx  # Problem detail page
+│   │   └── submission/[id]/page.tsx # Submission detail page
 │   ├── layout.tsx                   # Root layout
 │   ├── page.tsx                     # Landing page
 │   └── globals.css                  # Global styles
 ├── components/                      # Reusable components
+│   └── TopicsAnalytics.tsx         # Topic-based analytics component
 └── lib/                            # Utility functions
 ```
 
@@ -75,6 +91,12 @@ src/
 - **Statistics Overview**: Total problems solved, acceptance rate, contest rating
 - **Difficulty Breakdown**: Visual progress bars for Easy/Medium/Hard problems
 - **Recent Submissions**: Timeline with status, language, and problem links
+- **Topic Analytics**: Per-topic success rates, difficulty breakdown, and improvement suggestions
+  - 🎯 **Success Rate Analysis**: See your performance across all coding topics
+  - 📈 **Difficulty Insights**: Easy/Medium/Hard breakdown for each topic
+  - 🏆 **Strongest Topics**: Identify your coding strengths
+  - 🎯 **Focus Areas**: Get suggestions for topics that need improvement
+  - 📊 **Visual Performance**: Color-coded success rates and interactive charts
 - **Skills & Languages**: Technology tags and recent programming languages
 
 ### 🔌 **API Endpoints**
@@ -82,12 +104,17 @@ src/
 - `GET /api/user/[username]/stats` - Core statistics
 - `GET /api/user/[username]/submissions` - Submission history
 - `GET /api/user/[username]/dashboard` - Comprehensive dashboard data
+- `GET /api/user/[username]/topics` - Topic-based analytics and insights
+- `GET /api/user/[username]/problem/[slug]` - Problem-specific submission details
+- `GET /api/user/[username]/submission/[id]` - Individual submission code (limited)
 
 ## 🎯 Use Cases
 
-- **Personal Progress Tracking**: Monitor your LeetCode journey over time
-- **Interview Preparation**: Analyze problem-solving patterns and weak areas
+- **Personal Progress Tracking**: Monitor your LeetCode journey over time with topic-based insights
+- **Interview Preparation**: Analyze problem-solving patterns and identify weak areas by topic
+- **Skill Assessment**: Understand your strengths across different coding domains (Arrays, DP, Graphs, etc.)
 - **Competitive Programming**: Track contest performance and ratings
+- **Study Planning**: Focus on specific topics based on success rate analysis
 - **Team Management**: Monitor team members' progress (for educators/managers)
 - **Portfolio Showcase**: Display coding achievements to potential employers
 
