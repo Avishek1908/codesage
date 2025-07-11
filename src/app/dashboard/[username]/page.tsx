@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import TopicsAnalytics from '../../../components/TopicsAnalytics';
 
 // Type definitions
 interface User {
@@ -436,7 +437,7 @@ export default function Dashboard() {
           </div>
 
           {/* Languages and Skills */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {/* Languages Used */}
             <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-8 border border-white/10">
               <h2 className="text-2xl font-bold text-white mb-6">Recent Languages</h2>
@@ -467,6 +468,9 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+
+          {/* Topics Analytics Section */}
+          <TopicsAnalytics username={data.user.username} />
         </div>
       </main>
 

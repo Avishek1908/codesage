@@ -46,7 +46,7 @@ export default function Home() {
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Visualize your progress, analyze your submissions, and accelerate your coding growth with comprehensive LeetCode analytics
+            Visualize your progress, analyze your submissions by topic, and accelerate your coding growth with comprehensive LeetCode analytics
           </p>
 
           {/* Username Input Form */}
@@ -72,10 +72,10 @@ export default function Home() {
           {/* Feature Cards */}
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-8 border border-white/10 hover:bg-white/10 transition-all duration-300">
-              <div className="text-4xl mb-4">📊</div>
-              <h3 className="text-xl font-semibold text-white mb-3">Progress Analytics</h3>
+              <div className="text-4xl mb-4">🏷️</div>
+              <h3 className="text-xl font-semibold text-white mb-3">Topic Analytics</h3>
               <p className="text-gray-400">
-                Comprehensive insights into your solving patterns, difficulty progression, and success rates
+                Deep insights into your performance by topic - Arrays, DP, Graphs, and more. Discover your strengths and focus areas.
               </p>
             </div>
             
@@ -83,15 +83,15 @@ export default function Home() {
               <div className="text-4xl mb-4">📈</div>
               <h3 className="text-xl font-semibold text-white mb-3">Submission History</h3>
               <p className="text-gray-400">
-                Complete timeline of all your submissions with detailed performance metrics and trends
+                Complete timeline of all your submissions with detailed performance metrics and trends across languages.
               </p>
             </div>
             
             <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-8 border border-white/10 hover:bg-white/10 transition-all duration-300">
-              <div className="text-4xl mb-4">🎯</div>
-              <h3 className="text-xl font-semibold text-white mb-3">Goal Tracking</h3>
+              <div className="text-4xl mb-4">📊</div>
+              <h3 className="text-xl font-semibold text-white mb-3">Progress Analytics</h3>
               <p className="text-gray-400">
-                Set targets, monitor streaks, and celebrate milestones in your coding journey
+                Comprehensive insights into your solving patterns, difficulty progression, and success rates.
               </p>
             </div>
           </div>
