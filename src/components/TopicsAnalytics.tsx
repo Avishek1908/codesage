@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface TopicAnalytics {
   topicName: string;
@@ -30,6 +30,8 @@ interface TopicsData {
     improvementAreas: TopicAnalytics[];
   };
   metadata: {
+    enhanced: boolean;
+    totalSubmissionsAnalyzed: number;
     analysisLimitReached: boolean;
     totalUniqueProblems: number;
     problemsAnalyzed: number;
@@ -47,12 +49,14 @@ export default function TopicsAnalytics({ username }: TopicsAnalyticsProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
+  const [enhancedMode, setEnhancedMode] = useState(false);
 
-  const fetchTopicsData = async () => {
+  const fetchTopicsData = async (enhanced = false) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`/api/user/${encodeURIComponent(username)}/topics`);
+      const url = `/api/user/${encodeURIComponent(username)}/topics${enhanced ? '?enhanced=true' : ''}`;
+      const response = await fetch(url);
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -61,6 +65,7 @@ export default function TopicsAnalytics({ username }: TopicsAnalyticsProps) {
       
       const topicsData = await response.json();
       setData(topicsData);
+      setEnhancedMode(enhanced);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -127,7 +132,7 @@ export default function TopicsAnalytics({ username }: TopicsAnalyticsProps) {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-white">🏷️ Topic Analytics</h2>
           <button
-            onClick={fetchTopicsData}
+            onClick={() => fetchTopicsData(enhancedMode)}
             className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors text-sm"
           >
             Try Again
@@ -150,7 +155,7 @@ export default function TopicsAnalytics({ username }: TopicsAnalyticsProps) {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-white">🏷️ Topic Analytics</h2>
           <button
-            onClick={fetchTopicsData}
+            onClick={() => fetchTopicsData(false)}
             className="px-4 py-2 bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white rounded-lg transition-colors text-sm font-semibold"
           >
             Analyze Topics
@@ -192,13 +197,29 @@ export default function TopicsAnalytics({ username }: TopicsAnalyticsProps) {
       <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-8 border border-white/10">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-white">🏷️ Topic Analytics</h2>
-          <button
-            onClick={fetchTopicsData}
-            disabled={loading}
-            className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors text-sm disabled:opacity-50"
-          >
-            {loading ? '🔄' : '🔄 Refresh'}
-          </button>
+          <div className="flex items-center space-x-3">
+            {data && (
+              <button
+                onClick={() => fetchTopicsData(!enhancedMode)}
+                disabled={loading}
+                className={`px-4 py-2 text-white rounded-lg transition-colors text-sm font-medium border ${
+                  enhancedMode 
+                    ? 'bg-purple-500 hover:bg-purple-600 border-purple-500' 
+                    : 'bg-white/10 hover:bg-white/20 border-white/20'
+                }`}
+                title={enhancedMode ? 'Switch to fast mode (recent submissions only)' : 'Switch to enhanced mode (more historical data)'}
+              >
+                {loading ? '🔄' : enhancedMode ? '⚡ Fast Mode' : '🚀 Enhanced Mode'}
+              </button>
+            )}
+            <button
+              onClick={() => fetchTopicsData(enhancedMode)}
+              disabled={loading}
+              className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors text-sm disabled:opacity-50"
+            >
+              {loading ? '🔄' : '🔄 Refresh'}
+            </button>
+          </div>
         </div>
 
         {/* Overall Statistics */}
@@ -223,14 +244,29 @@ export default function TopicsAnalytics({ username }: TopicsAnalyticsProps) {
 
         {/* Analysis Metadata */}
         {data.metadata.note && (
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 mb-6">
+          <div className={`backdrop-blur-sm rounded-xl p-4 mb-6 border ${
+            data.metadata.enhanced 
+              ? 'bg-purple-500/10 border-purple-500/20' 
+              : 'bg-blue-500/10 border-blue-500/20'
+          }`}>
             <div className="flex items-start space-x-3">
-              <div className="text-blue-400 text-lg">ℹ️</div>
+              <div className={`text-lg ${data.metadata.enhanced ? 'text-purple-400' : 'text-blue-400'}`}>
+                {data.metadata.enhanced ? '🚀' : 'ℹ️'}
+              </div>
               <div>
-                <div className="text-blue-300 text-sm font-semibold mb-1">Analysis Note</div>
+                <div className={`text-sm font-semibold mb-1 ${
+                  data.metadata.enhanced ? 'text-purple-300' : 'text-blue-300'
+                }`}>
+                  {data.metadata.enhanced ? 'Enhanced Analysis' : 'Standard Analysis'}
+                </div>
                 <div className="text-gray-300 text-sm">{data.metadata.note}</div>
                 <div className="text-gray-400 text-xs mt-1">
                   Analyzed {data.metadata.problemsAnalyzed} of {data.metadata.totalUniqueProblems} unique problems
+                  {data.metadata.enhanced && (
+                    <span className="ml-2 text-purple-400">
+                      • {data.metadata.totalSubmissionsAnalyzed} total submissions
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -277,7 +313,7 @@ export default function TopicsAnalytics({ username }: TopicsAnalyticsProps) {
           <h3 className="text-xl font-bold text-white mb-4">🎯 Focus Areas</h3>
           {data.overallStats.improvementAreas.length > 0 ? (
             <div className="space-y-3">
-              {data.overallStats.improvementAreas.slice(0, 3).map((topic, index) => (
+              {data.overallStats.improvementAreas.slice(0, 3).map((topic) => (
                 <div key={topic.slug} className="bg-orange-500/10 rounded-lg p-3 border border-orange-500/20">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">

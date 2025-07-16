@@ -3,10 +3,11 @@ import { LeetCode } from 'leetcode-query';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { username: string; slug: string } }
+  { params }: { params: Promise<{ username: string; slug: string }> }
 ) {
   try {
-    const { username, slug } = params;
+    const resolvedParams = await params;
+    const { username, slug } = resolvedParams;
     
     if (!username || !slug) {
       return NextResponse.json(

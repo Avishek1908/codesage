@@ -3,10 +3,11 @@ import { LeetCode } from 'leetcode-query';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { username: string; submissionId: string } }
+  { params }: { params: Promise<{ username: string; submissionId: string }> }
 ) {
   try {
-    const { username, submissionId } = params;
+    const resolvedParams = await params;
+    const { username, submissionId } = resolvedParams;
     
     if (!username || !submissionId) {
       return NextResponse.json(
@@ -30,7 +31,7 @@ export async function GET(
         fetchedAt: new Date().toISOString()
       });
       
-    } catch (authError) {
+    } catch {
       // If authentication fails, provide helpful information
       return NextResponse.json({
         username,

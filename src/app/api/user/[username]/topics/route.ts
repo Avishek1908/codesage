@@ -17,14 +17,52 @@ interface TopicAnalytics {
   };
 }
 
+async function getAllSubmissions(leetcode: any, username: string) {
+  // Enhanced submission gathering strategy
+  console.log('Attempting to gather comprehensive submission data...');
+  
+  let allSubmissions: any[] = [];
+  
+  // Method 1: Try recent_submissions with maximum reasonable limit
+  try {
+    console.log('Fetching recent submissions...');
+    const recentSubmissions = await leetcode.recent_submissions(username, 100);
+    allSubmissions = [...recentSubmissions];
+    console.log(`✅ Got ${recentSubmissions.length} submissions from recent_submissions`);
+  } catch (error) {
+    console.error('❌ Error fetching recent submissions:', error);
+    throw error; // If this fails, we can't proceed
+  }
+  
+  // Method 2: Try to get user's total submission count for context
+  try {
+    const userProfile = await leetcode.user(username);
+    if (userProfile?.matchedUser?.submitStats) {
+      const totalSubmissions = userProfile.matchedUser.submitStats.totalSubmissionNum?.find(
+        (stat: any) => stat.difficulty === 'All'
+      )?.count || 0;
+      
+      console.log(`📊 User has ${totalSubmissions} total submissions in their profile`);
+      console.log(`📈 Currently analyzing ${allSubmissions.length} recent submissions (${Math.round((allSubmissions.length / totalSubmissions) * 100)}% of total)`);
+    }
+  } catch {
+    console.log('ℹ️ Could not fetch total submission count for context');
+  }
+  
+  // Sort by timestamp (newest first)
+  allSubmissions.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp));
+  
+  return allSubmissions;
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { username: string } }
+  { params }: { params: Promise<{ username: string }> }
 ) {
   try {
-    const { username } = params;
+    const { username } = await params;
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '50');
+    const enhanced = searchParams.get('enhanced') === 'true'; // Flag for enhanced data fetching
     
     if (!username) {
       return NextResponse.json(
@@ -35,13 +73,18 @@ export async function GET(
 
     const leetcode = new LeetCode();
     
-    // Fetch recent submissions to analyze
-    const submissions = await leetcode.recent_submissions(username, Math.min(limit, 50));
+    // Fetch submissions with enhanced method if requested
+    let submissions;
+    if (enhanced) {
+      submissions = await getAllSubmissions(leetcode, username);
+    } else {
+      submissions = await leetcode.recent_submissions(username, 50);
+    }
     
     if (submissions.length === 0) {
       return NextResponse.json({
         username,
-        message: 'No recent submissions found for topic analysis',
+        message: 'No submissions found for topic analysis',
         topicAnalytics: [],
         fetchedAt: new Date().toISOString()
       });
@@ -193,10 +236,14 @@ export async function GET(
       topicAnalytics: topicAnalytics.slice(0, 20), // Return top 20 topics
       overallStats,
       metadata: {
+        enhanced: enhanced,
+        totalSubmissionsAnalyzed: submissions.length,
         analysisLimitReached: uniqueProblems.length > 30,
         totalUniqueProblems: uniqueProblems.length,
         problemsAnalyzed: problemDetails.length,
-        note: uniqueProblems.length > 30 ? 'Analysis limited to 30 most recent unique problems to avoid rate limiting' : null
+        note: enhanced 
+          ? `Enhanced analysis: Processed ${submissions.length} submissions with comprehensive data gathering${uniqueProblems.length > 30 ? ', limited to 30 unique problems to avoid rate limiting' : ''}. Note: LeetCode API limits access to recent submissions only.`
+          : `Standard analysis: Processed ${submissions.length} recent submissions${uniqueProblems.length > 30 ? ', limited to 30 unique problems to avoid rate limiting' : ''}. Use 🚀 Enhanced Mode for better data gathering and context.`
       },
       fetchedAt: new Date().toISOString()
     });

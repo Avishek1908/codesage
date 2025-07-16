@@ -3,10 +3,11 @@ import { LeetCode } from 'leetcode-query';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { username: string } }
+  { params }: { params: Promise<{ username: string }> }
 ) {
   try {
-    const { username } = params;
+    const resolvedParams = await params;
+    const { username } = resolvedParams;
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '20');
     
