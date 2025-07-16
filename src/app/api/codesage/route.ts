@@ -18,18 +18,36 @@ export async function POST(request: NextRequest) {
     const credential = new Credential();
     await credential.init(sessionCookie);
     
-    // Create LeetCode instance and fetch submissions
+    // Create LeetCode instance and fetch all submissions
     const leetcode = new LeetCode(credential);
-    const submissions = await leetcode.submissions({ limit: 10, offset: 0 });
     
-    console.log('✨ CodeSage submissions:', submissions);
+    console.log('📥 Fetching all submissions...');
+    let allSubmissions = [];
+    let currentPage = 0;
+    let hasMoreSubmissions = true;
+    
+    while (hasMoreSubmissions) {
+      console.log(`🔄 Fetching page ${currentPage + 1}...`);
+      const submissions = await leetcode.submissions({ limit: 10, offset: currentPage * 10 });
+      
+      if (submissions && submissions.length > 0) {
+        allSubmissions.push(...submissions);
+        currentPage++;
+        console.log(`✅ Page ${currentPage} fetched: ${submissions.length} submissions (Total: ${allSubmissions.length})`);
+      } else {
+        hasMoreSubmissions = false;
+        console.log('🏁 No more submissions found. Fetching complete!');
+      }
+    }
+    
+    console.log(`✨ CodeSage total submissions fetched: ${allSubmissions.length}`);
     
     // Get detailed submission data for the first submission (if available)
     let submissionDetail = null;
-    if (submissions && submissions.length > 0 && submissions[0].id) {
+    if (allSubmissions && allSubmissions.length > 0 && allSubmissions[0].id) {
       try {
-        console.log('🔍 Fetching detailed submission for ID:', submissions[0].id);
-        submissionDetail = await leetcode.submission(submissions[0].id);
+        console.log('🔍 Fetching detailed submission for ID:', allSubmissions[0].id);
+        submissionDetail = await leetcode.submission(allSubmissions[0].id);
         console.log('✨ CodeSage submission detail:', submissionDetail);
       } catch (detailError) {
         console.warn('⚠️ Could not fetch submission detail:', detailError);
@@ -41,7 +59,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        submissions: submissions,
+        submissions: allSubmissions,
         submissionDetail: submissionDetail
       },
       timestamp: new Date().toISOString()

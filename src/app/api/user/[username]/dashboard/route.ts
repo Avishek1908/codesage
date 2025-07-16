@@ -78,7 +78,7 @@ export async function GET(
 
     // Recent activity analytics
     const recentActivity = {
-      recentSubmissions: processedSubmissions.slice(0, 10),
+      recentSubmissions: processedSubmissions, // Show all fetched submissions (20)
       languages: [...new Set(processedSubmissions.map(s => s.lang))],
       recentAcceptanceRate: processedSubmissions.length > 0 ? 
         Math.round((processedSubmissions.filter(s => s.isAccepted).length / processedSubmissions.length) * 100) : 0,
